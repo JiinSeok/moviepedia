@@ -23,14 +23,11 @@ function ReviewListItem({ item }) {
 function ReviewList({ items }) {
   return (
     <ul>
-      {items.map((item) => {
-        // map 메소드 콜백함수 안에서 JSX를 리턴하면 JSX를 여러 개 추가한 것처럼 동작. 많은 데이터 보여줄 때.
-        return (
-          <li>
-            <ReviewListItem item={item} />
-          </li>
-        );
-      })}
+      {items.map((item) => ( // map 메소드 콜백함수 안에서 JSX를 리턴하면 JSX를 여러 개 추가한 것처럼 동작. 많은 데이터 보여줄 때.
+        <li key={item.id}>
+          <ReviewListItem item={item} />
+        </li>
+      ))}
     </ul>
   );
 }
