@@ -1,9 +1,9 @@
+import { getReviews } from "../api";
 import ReviewList from "./ReviewList";
-import mockitems from "../mock.json";
 import { useState } from "react";
 
 function App() {
-  const [items, setItems] = useState(mockitems);
+  const [items, setItems] = useState([]);
   const [order, setOrder] = useState("createdAt");
   const sortedItems = items.sort((a, b) => b[order] - a[order]); // a, b는 객체
 
@@ -15,6 +15,11 @@ function App() {
     setItems(nextItems);
   };
 
+  const handleLoadClick = async () => {
+    const { reviews } = await getReviews(); // 리스폰스 body의 reviews 값을 destructuring
+    setItems(reviews);
+  };
+
   return (
     // 4. onDelete는 App.js에서 정의된 handleDelete 함수로 연결되어 있으며, item.id를 인자로 받습니다.
     // 부모 컴포넌트인 App.js는 ReviewList 컴포넌트를 렌더링할 때 handleDelete 함수를 onDelete라는 이름의 props로 전달합니다.
@@ -22,6 +27,7 @@ function App() {
       <button onClick={handleNewestClick}>최신순</button>
       <button onClick={handleBestClick}>별점순</button>
       <ReviewList items={sortedItems} onDelete={handleDelete} />
+      <button onClick={handleLoadClick}>불러오기</button>
     </div>
   );
 }
