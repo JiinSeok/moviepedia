@@ -1,6 +1,6 @@
 import { getReviews } from "../api";
 import ReviewList from "./ReviewList";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 function App() {
   const [items, setItems] = useState([]);
@@ -14,11 +14,14 @@ function App() {
     const nextItems = items.filter((item) => item.id !== id); // id가 일치하지 않는 요소로 새로운 배열
     setItems(nextItems);
   };
-
-  const handleLoadClick = async () => {
-    const { reviews } = await getReviews(); // 리스폰스 body의 reviews 값을 destructuring
-    setItems(reviews);
+  const handleLoad = async () => {
+    const { reviews } = await getReviews(); // 리스폰스 body의 reviews 값을 destructuring. 비동기로 리스폰스 보내고, 도착하면 reviews 변수 지정
+    setItems(reviews); // state 변경 -> 렌더링을 위해 App 컴포넌트 함수 재실행
   };
+
+  useEffect(() => {
+    handleLoad();
+  }, []); // 두 번째 아규먼트로 빈 배열 전달하면 첫 아규먼트 콜백함수는 처음 렌더링할 때만 실행됨.
 
   return (
     // 4. onDelete는 App.js에서 정의된 handleDelete 함수로 연결되어 있으며, item.id를 인자로 받습니다.
@@ -27,7 +30,6 @@ function App() {
       <button onClick={handleNewestClick}>최신순</button>
       <button onClick={handleBestClick}>별점순</button>
       <ReviewList items={sortedItems} onDelete={handleDelete} />
-      <button onClick={handleLoadClick}>불러오기</button>
     </div>
   );
 }
