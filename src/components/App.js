@@ -10,6 +10,7 @@ function App() {
   const [offset, setOffset] = useState(0);
   const [hasNext, setHasNext] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingError, setLoadingError] = useState(null);
 
   const sortedItems = items.sort((a, b) => b[order] - a[order]); // a, b는 객체
 
@@ -24,9 +25,10 @@ function App() {
     let result;
     try {
       setIsLoading(true);
+      setLoadingError(null);
       result = await getReviews(options);
     } catch (error) {
-      console.error(error);
+      setLoadingError(error);
       return;
     } finally {
       setIsLoading(false);
@@ -62,7 +64,8 @@ function App() {
           더 보기
         </button>
       )}
-    </div>
+      {loadingError?.message && <span>{loadingError.message}</span>}
+    </div> // 옵셔널 체이닝(?.): loadingError가 null 또는 undefined가 아니면 loadingError.message를 평가하고, 그렇지 않으면 평가를 멈추고 undefined를 반환합니다.
   ); // 조건부 렌더링 - hasNext 참일 때 뒤의 조건을 계산해서 값을 사용(버튼 렌더링), 거짓일 때는 앞의 조건(false)
 }
 
