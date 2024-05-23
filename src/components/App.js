@@ -24,7 +24,7 @@ function App() {
     if (options.offset === 0) {
       setItems(reviews);
     } else {
-      setItems([...items, ...reviews]); // 추가로 데이터 불러올 땐 items 배열에 가져온 요소 추가
+      setItems((prevItems) => [...prevItems, ...reviews]); // 추가로 데이터 불러올 땐 items 배열에 가져온 요소 추가
     }
     setOffset(options.offset + reviews.length); // state 변경 -> 렌더링을 위해 App 컴포넌트 함수 재실행 // 변경 offset = 현재 데이터 로드의 시작 위치 + 이번에 가져온 리뷰 데이터 개수 = 다음 번 데이터 로드가 시작될 위치
     setHasNext(paging.hasNext);
@@ -45,11 +45,9 @@ function App() {
       <button onClick={handleNewestClick}>최신순</button>
       <button onClick={handleBestClick}>별점순</button>
       <ReviewList items={sortedItems} onDelete={handleDelete} />
-      <button disabled={!hasNext} onClick={handleLoadMore}>
-        더 보기
-      </button>
+      {hasNext && <button onClick={handleLoadMore}>더 보기</button>}
     </div>
-  );
+  ); // 조건부 렌더링 - hasNext 참일 때 뒤의 조건을 계산해서 값을 사용(버튼 렌더링), 거짓일 때는 앞의 조건(false)
 }
 
 export default App;
