@@ -9,6 +9,7 @@ function App() {
   const [order, setOrder] = useState("createdAt");
   const [offset, setOffset] = useState(0);
   const [hasNext, setHasNext] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const sortedItems = items.sort((a, b) => b[order] - a[order]); // a, b는 객체
 
@@ -20,7 +21,18 @@ function App() {
     setItems(nextItems);
   };
   const handleLoad = async (options) => {
-    const { reviews, paging } = await getReviews(options); // 리스폰스 body의 reviews 값을 destructuring. 비동기로 리스폰스 보내고, 도착하면 reviews 변수 지정
+    let result;
+    try {
+      setIsLoading(true);
+      result = await getReviews(options);
+    } catch (error) {
+      console.error(error);
+      return;
+    } finally {
+      setIsLoading(false);
+    }
+    const { reviews, paging } = result;
+    // 리스폰스 body의 reviews 값을 destructuring. 비동기로 리스폰스 보내고, 도착하면 reviews 변수 지정
     if (options.offset === 0) {
       setItems(reviews);
     } else {
@@ -45,7 +57,11 @@ function App() {
       <button onClick={handleNewestClick}>최신순</button>
       <button onClick={handleBestClick}>별점순</button>
       <ReviewList items={sortedItems} onDelete={handleDelete} />
-      {hasNext && <button onClick={handleLoadMore}>더 보기</button>}
+      {hasNext && (
+        <button disabled={isLoading} onClick={handleLoadMore}>
+          더 보기
+        </button>
+      )}
     </div>
   ); // 조건부 렌더링 - hasNext 참일 때 뒤의 조건을 계산해서 값을 사용(버튼 렌더링), 거짓일 때는 앞의 조건(false)
 }
