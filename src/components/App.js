@@ -49,6 +49,10 @@ function App() {
     handleLoad({ order, offset, limit: LIMIT });
   };
 
+  const handleSubmitSuccess = (review) => {
+    setItems((prevItems) => [review, ...prevItems]); // 비동기 함수에서 이전 스테이트 사용하려면 콜백함수 활용
+  }
+
   useEffect(() => {
     handleLoad({ order, offset: 0, limit: LIMIT });
   }, [order]); // 두 번째 아규먼트로 빈 배열 디펜던시 리스트 전달하면 첫 아규먼트 콜백함수는 첫 렌더링 끝나면 비동기 실행됨. 두 번째부터는 디펜던시 리스트를 비교해서 달라진 경우에만 실행하기 때문임. - 특정 값이 바뀔 때마다 실행할 수도 있다.
@@ -59,7 +63,7 @@ function App() {
     <div>
       <button onClick={handleNewestClick}>최신순</button>
       <button onClick={handleBestClick}>별점순</button>
-      <ReviewForm />
+      <ReviewForm onSubmitSuccess={handleSubmitSuccess} />
       <ReviewList items={sortedItems} onDelete={handleDelete} />
       {hasNext && (
         <button disabled={isLoading} onClick={handleLoadMore}>
