@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 
-function FileInput({ name, value, onChange }) {
+function FileInput({ initialPreview, name, value, onChange }) {
   // onChange를 name과 value로 호출
   // State Lifting: state 직접 사용 대신 부모 컴포넌트 state를 props로 사용
-  const [preview, setPreview] = useState();
+  const [preview, setPreview] = useState(initialPreview);
   const inputRef = useRef();
 
   const handleChange = (e) => {
@@ -33,10 +33,10 @@ function FileInput({ name, value, onChange }) {
     setPreview(nextPreview);
 
     return () => {
-      setPreview();
+      setPreview(initialPreview);
       URL.revokeObjectURL(nextPreview);
     }
-  }, [value]);
+  }, [value, initialPreview]);
 
   return (
     // FileInput은 비제어 컴포넌트. input 태그에 value prop을 지정할 수 없다 - 보안

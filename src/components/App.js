@@ -1,13 +1,13 @@
-import { getReviews } from "../api";
-import ReviewForm from "./ReviewForm";
-import ReviewList from "./ReviewList";
-import { useEffect, useState } from "react";
+import { createReview, getReviews, updateReview } from '../api';
+import ReviewForm from './ReviewForm';
+import ReviewList from './ReviewList';
+import { useEffect, useState } from 'react';
 
 const LIMIT = 6;
 
 function App() {
   const [items, setItems] = useState([]);
-  const [order, setOrder] = useState("createdAt");
+  const [order, setOrder] = useState('createdAt');
   const [offset, setOffset] = useState(0);
   const [hasNext, setHasNext] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -15,8 +15,8 @@ function App() {
 
   const sortedItems = items.sort((a, b) => b[order] - a[order]); // a, b는 객체
 
-  const handleNewestClick = () => setOrder("createdAt");
-  const handleBestClick = () => setOrder("rating");
+  const handleNewestClick = () => setOrder('createdAt');
+  const handleBestClick = () => setOrder('rating');
   const handleDelete = (id) => {
     // 5. handleDelete 함수는 items 배열에서 해당 id를 가진 아이템을 제외한 새로운 배열 nextItems를 생성하고, setItems(nextItems)를 호출하여 상태를 업데이트합니다.
     const nextItems = items.filter((item) => item.id !== id); // id가 일치하지 않는 요소로 새로운 배열
@@ -49,9 +49,20 @@ function App() {
     handleLoad({ order, offset, limit: LIMIT });
   };
 
-  const handleSubmitSuccess = (review) => {
+  const handleCreateSuccess = (review) => {
     setItems((prevItems) => [review, ...prevItems]); // 비동기 함수에서 이전 스테이트 사용하려면 콜백함수 활용
-  }
+  };
+
+  const handleUpdateSuccess = (review) => {
+    setItems((prevItems) => {
+      const splitIdx = prevItems.findIndex((item) => item.id === review.id);
+      return [
+        ...prevItems.slice(0, splitIdx),
+        review,
+        ...prevItems.slice(splitIdx + 1),
+      ];
+    });
+  };
 
   useEffect(() => {
     handleLoad({ order, offset: 0, limit: LIMIT });
@@ -63,8 +74,16 @@ function App() {
     <div>
       <button onClick={handleNewestClick}>최신순</button>
       <button onClick={handleBestClick}>별점순</button>
-      <ReviewForm onSubmitSuccess={handleSubmitSuccess} />
-      <ReviewList items={sortedItems} onDelete={handleDelete} />
+      <ReviewForm
+        onSubmit={createReview}
+        onSubmitSuccess={handleCreateSuccess}
+      />
+      <ReviewList // ReviewForm에 prop 전달
+        items={sortedItems}
+        onDelete={handleDelete}
+        onUpdate={updateReview}
+        onUpdateSuccess={handleUpdateSuccess}
+      />
       {hasNext && (
         <button disabled={isLoading} onClick={handleLoadMore}>
           더 보기
