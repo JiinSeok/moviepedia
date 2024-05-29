@@ -68,7 +68,6 @@ function ReviewForm({ initialPreview, initialValues = INITIAL_VALUES, onSubmit, 
         value={values.rating}
         onChange={handleChange}
       />
-      <></>
       <textarea
         name='content'
         value={values.content}

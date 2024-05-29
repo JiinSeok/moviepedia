@@ -1,4 +1,4 @@
-import { createReview, getReviews, updateReview } from '../api';
+import { createReview, deleteReview, getReviews, updateReview } from '../api';
 import ReviewForm from './ReviewForm';
 import ReviewList from './ReviewList';
 import { useEffect, useState } from 'react';
@@ -16,12 +16,17 @@ function App() {
   const sortedItems = items.sort((a, b) => b[order] - a[order]); // a, b는 객체
 
   const handleNewestClick = () => setOrder('createdAt');
+
   const handleBestClick = () => setOrder('rating');
-  const handleDelete = (id) => {
+
+  const handleDelete = async (id) => {
+    const result = await deleteReview(id);
+    if (!result) return;
+
     // 5. handleDelete 함수는 items 배열에서 해당 id를 가진 아이템을 제외한 새로운 배열 nextItems를 생성하고, setItems(nextItems)를 호출하여 상태를 업데이트합니다.
-    const nextItems = items.filter((item) => item.id !== id); // id가 일치하지 않는 요소로 새로운 배열
-    setItems(nextItems);
+    setItems((prevItems) => prevItems.filter((item) => item.id !== id)); // 비동기 + 상태변경은 콜백으로. id가 일치하지 않는 요소로 새로운 배열 구성.
   };
+
   const handleLoad = async (options) => {
     let result;
     try {
