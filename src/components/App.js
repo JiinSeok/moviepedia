@@ -1,5 +1,7 @@
 import { createReview, deleteReview, getReviews, updateReview } from '../api';
+import LocaleContext from '../contexts/LocaleContext';
 import useAsync from '../hooks/useAsync';
+import LocaleSelect from './LocaleSelect';
 import ReviewForm from './ReviewForm';
 import ReviewList from './ReviewList';
 import { useCallback, useEffect, useState } from 'react';
@@ -8,6 +10,8 @@ const LIMIT = 5;
 
 function App() {
   console.log('App 실행')
+
+  const [locale, setLocale] = useState('ko');
   const [items, setItems] = useState([]);
   const [order, setOrder] = useState('createdAt');
   const [offset, setOffset] = useState(0);
@@ -72,26 +76,30 @@ function App() {
   return (
     // 4. onDelete는 App.js에서 정의된 handleDelete 함수로 연결되어 있으며, item.id를 인자로 받습니다.
     // 부모 컴포넌트인 App.js는 ReviewList 컴포넌트를 렌더링할 때 handleDelete 함수를 onDelete라는 이름의 props로 전달합니다.
-    <div>
-      <button onClick={handleNewestClick}>최신순</button>
-      <button onClick={handleBestClick}>별점순</button>
-      <ReviewForm
-        onSubmit={createReview}
-        onSubmitSuccess={handleCreateSuccess}
-      />
-      <ReviewList // ReviewForm에 prop 전달
-        items={sortedItems}
-        onDelete={handleDelete}
-        onUpdate={updateReview}
-        onUpdateSuccess={handleUpdateSuccess}
-      />
-      {hasNext && (
-        <button disabled={isLoading} onClick={handleLoadMore}>
-          더 보기
-        </button>
-      )}
-      {loadingError?.message && <span>{loadingError.message}</span>}
-    </div> // 옵셔널 체이닝(?.): loadingError가 null 또는 undefined가 아니면 loadingError.message를 평가하고, 그렇지 않으면 평가를 멈추고 undefined를 반환합니다.
+    <LocaleContext.Provider value={locale}> 
+      <div>
+        <LocaleSelect value={locale} onChange={setLocale} />
+        <button onClick={handleNewestClick}>최신순</button>
+        <button onClick={handleBestClick}>별점순</button>
+        <ReviewForm
+          onSubmit={createReview}
+          onSubmitSuccess={handleCreateSuccess}
+        />
+        <ReviewList // ReviewForm에 prop 전달
+          items={sortedItems}
+          onDelete={handleDelete}
+          onUpdate={updateReview}
+          onUpdateSuccess={handleUpdateSuccess}
+        />
+        {hasNext && (
+          <button disabled={isLoading} onClick={handleLoadMore}>
+            더 보기
+          </button>
+        )}
+        {loadingError?.message && <span>{loadingError.message}</span>}
+      </div> 
+    </LocaleContext.Provider>
+    // 옵셔널 체이닝(?.): loadingError가 null 또는 undefined가 아니면 loadingError.message를 평가하고, 그렇지 않으면 평가를 멈추고 undefined를 반환합니다.
   ); // 조건부 렌더링 - hasNext 참일 때 뒤의 조건을 계산해서 값을 사용(버튼 렌더링), 거짓일 때는 앞의 조건(false)
 }
 
