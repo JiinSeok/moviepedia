@@ -11,10 +11,10 @@ const INITIAL_VALUES = {
   imgFile: null,
 };
 
-function ReviewForm({ onSubmitSuccess }) {
+function ReviewForm({ initialPreview, initialValues = INITIAL_VALUES, onSubmit, onSubmitSuccess, onCancel }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submittingError, setSubmittingError] = useState(null);
-  const [values, setValues] = useState(INITIAL_VALUES);
+  const [values, setValues] = useState(initialValues);
 
   const handleChange = (name, value) => {
     setValues((preValues) => ({
@@ -40,7 +40,7 @@ function ReviewForm({ onSubmitSuccess }) {
     try {
       setSubmittingError(null);
       setIsSubmitting(true);
-      result = await createReview(formData); // POST 리퀘스트 함수로 전달
+      result = await onSubmit(formData); // POST 리퀘스트 함수로 전달
     } catch (error) {
       setSubmittingError(error);
       return;
@@ -57,6 +57,7 @@ function ReviewForm({ onSubmitSuccess }) {
     <form className='ReviewForm' onSubmit={handleSubmit}>
       <FileInput
         name='imgFile'
+        initialPreview={initialPreview}
         value={values.imgFile}
         onChange={handleChange}
       />
@@ -67,12 +68,12 @@ function ReviewForm({ onSubmitSuccess }) {
         value={values.rating}
         onChange={handleChange}
       />
-      <></>
       <textarea
         name='content'
         value={values.content}
         onChange={handleInputChange}
       />
+      {onCancel && <button onClick={onCancel}>취소</button>}
       <button type='submit' disabled={isSubmitting}>확인</button>
       {submittingError?.message && <div>{submittingError.message}</div>}
     </form>
