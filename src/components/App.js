@@ -49,8 +49,8 @@ function App() {
     handleLoad({ order, offset, limit: LIMIT });
   };
 
-  const handleSubmitSuccess = (review) => {
-    setItems((prevItems) => [review, ...prevItems]); // 비동기 함수에서 이전 스테이트 사용하려면 콜백함수 활용
+  const handleSubmitSuccess = (newItem) => {
+    setItems((prevItems) => [newItem, ...prevItems]); // 비동기 함수에서 이전 스테이트 사용하려면 콜백함수 활용
   }
 
   useEffect(() => {
