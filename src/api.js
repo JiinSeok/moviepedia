@@ -5,6 +5,7 @@ export async function getReviews({
   offset = 0,
   limit = 6,
 }) {
+  // throw new Error('에러 테스트');
   const query = `order=${order}&offset=${offset}&limit=${limit}`;
   const response = await fetch(`${BASE_URL}/film-reviews/?${query}`);
   if (!response.ok) {

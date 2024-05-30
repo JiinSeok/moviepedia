@@ -3,6 +3,7 @@ import "./ReviewForm.css";
 import FileInput from "./FileInput";
 import RatingInput from "./RatingInput";
 import { createReview } from "../api";
+import useAsync from "../hooks/useAsync";
 
 const INITIAL_VALUES = {
   title: "",
@@ -12,8 +13,7 @@ const INITIAL_VALUES = {
 };
 
 function ReviewForm({ initialPreview, initialValues = INITIAL_VALUES, onSubmit, onSubmitSuccess, onCancel }) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submittingError, setSubmittingError] = useState(null);
+  const [isSubmitting, submittingError, onSubmitAsync] = useAsync(onSubmit);
   const [values, setValues] = useState(initialValues);
 
   const handleChange = (name, value) => {
@@ -36,17 +36,9 @@ function ReviewForm({ initialPreview, initialValues = INITIAL_VALUES, onSubmit, 
     formData.append('content', values.content);
     formData.append('imgFile', values.imgFile);
 
-    let result;
-    try {
-      setSubmittingError(null);
-      setIsSubmitting(true);
-      result = await onSubmit(formData); // POST 리퀘스트 함수로 전달
-    } catch (error) {
-      setSubmittingError(error);
-      return;
-    } finally {
-      setIsSubmitting(false);
-    }
+    const result = await onSubmitAsync(formData); // POST API 실행하고 로딩, 에러 처리하는 함수
+    if (!result) return;
+
     const { review } = result;
     onSubmitSuccess(review);
     setValues(INITIAL_VALUES); // 리퀘스트 후 폼 초기화

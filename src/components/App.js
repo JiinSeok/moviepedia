@@ -1,17 +1,18 @@
 import { createReview, deleteReview, getReviews, updateReview } from '../api';
+import useAsync from '../hooks/useAsync';
 import ReviewForm from './ReviewForm';
 import ReviewList from './ReviewList';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
-const LIMIT = 6;
+const LIMIT = 5;
 
 function App() {
+  console.log('App 실행')
   const [items, setItems] = useState([]);
   const [order, setOrder] = useState('createdAt');
   const [offset, setOffset] = useState(0);
   const [hasNext, setHasNext] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [loadingError, setLoadingError] = useState(null);
+  const [isLoading, loadingError, getReviewsAsync] = useAsync(getReviews); // 실행한 pending 상태, error 상태, getReviewsAsync = wrappedFunction (API 함수 실행 함수)를 리턴 받음
 
   const sortedItems = items.sort((a, b) => b[order] - a[order]); // a, b는 객체
 
@@ -27,18 +28,12 @@ function App() {
     setItems((prevItems) => prevItems.filter((item) => item.id !== id)); // 비동기 + 상태변경은 콜백으로. id가 일치하지 않는 요소로 새로운 배열 구성.
   };
 
-  const handleLoad = async (options) => {
-    let result;
-    try {
-      setIsLoading(true);
-      setLoadingError(null);
-      result = await getReviews(options);
-    } catch (error) {
-      setLoadingError(error);
-      return;
-    } finally {
-      setIsLoading(false);
-    }
+  const handleLoad = useCallback(async (options) => { // handleLoad는 호출할 때마다 렌더링하는 함수. options는 객체 파라미터
+    console.log('handleLoad 실행')
+    const result = await getReviewsAsync(options); // 리턴 받은 함수로 try...catch 로딩, 에러 처리
+    console.log('getReviewsAsync 실행')
+    if (!result) return; // undefined 리턴 (에러) 받으면 종료 (아래 코드 실행 X)
+
     const { reviews, paging } = result;
     // 리스폰스 body의 reviews 값을 destructuring. 비동기로 리스폰스 보내고, 도착하면 reviews 변수 지정
     if (options.offset === 0) {
@@ -48,7 +43,7 @@ function App() {
     }
     setOffset(options.offset + reviews.length); // state 변경 -> 렌더링을 위해 App 컴포넌트 함수 재실행 // 변경 offset = 현재 데이터 로드의 시작 위치 + 이번에 가져온 리뷰 데이터 개수 = 다음 번 데이터 로드가 시작될 위치
     setHasNext(paging.hasNext);
-  };
+  }, [getReviewsAsync]); //useCallback(고정할 함수, [디펜던시 리스트]) 함수 리턴
 
   const handleLoadMore = () => {
     handleLoad({ order, offset, limit: LIMIT });
@@ -71,8 +66,9 @@ function App() {
 
   useEffect(() => {
     handleLoad({ order, offset: 0, limit: LIMIT });
-  }, [order]); // 두 번째 아규먼트로 빈 배열 디펜던시 리스트 전달하면 첫 아규먼트 콜백함수는 첫 렌더링 끝나면 비동기 실행됨. 두 번째부터는 디펜던시 리스트를 비교해서 달라진 경우에만 실행하기 때문임. - 특정 값이 바뀔 때마다 실행할 수도 있다.
+  }, [order, handleLoad]); // 두 번째 아규먼트로 빈 배열 디펜던시 리스트 전달하면 첫 아규먼트 콜백함수는 첫 렌더링 끝나면 비동기 실행됨. 두 번째부터는 디펜던시 리스트를 비교해서 달라진 경우에만 실행하기 때문임. - 특정 값이 바뀔 때마다 실행할 수도 있다.
 
+  console.log('App 리턴')
   return (
     // 4. onDelete는 App.js에서 정의된 handleDelete 함수로 연결되어 있으며, item.id를 인자로 받습니다.
     // 부모 컴포넌트인 App.js는 ReviewList 컴포넌트를 렌더링할 때 handleDelete 함수를 onDelete라는 이름의 props로 전달합니다.
