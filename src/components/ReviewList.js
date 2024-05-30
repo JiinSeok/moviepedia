@@ -1,8 +1,8 @@
-import { useContext, useState } from 'react';
+import { useState } from 'react';
 import Rating from './Rating';
 import ReviewForm from './ReviewForm';
 import './ReviewList.css';
-import LocaleContext from '../contexts/LocaleContext';
+import { useLocale } from '../contexts/LocaleContext';
 
 function formatDate(value) {
   // 숫자형의 날짜를 예쁘게 보여주는 함수
@@ -11,7 +11,7 @@ function formatDate(value) {
 }
 
 function ReviewListItem({ item, onDelete, onEdit }) {
-  const locale = useContext(LocaleContext); // 리턴값으로 받은 데이터를 locale 변수로 사용
+  const locale = useLocale(); // 리턴값으로 받은 데이터를 locale 변수로 사용
 
   // onDelete 함수가 부모 컴포넌트에서 전달되었다는 것은 ReviewListItem 컴포넌트가 자신의 부모 컴포넌트인 ReviewList를 통해 App.js에서 정의된 handleDelete 함수를 props로 전달받아 사용하고 있다
   // ReviewList 컴포넌트는 ReviewListItem 컴포넌트를 렌더링할 때, onDelete props를 다시 ReviewListItem 컴포넌트로 전달합니다.
