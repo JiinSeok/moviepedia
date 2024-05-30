@@ -2,7 +2,7 @@ import { useState } from 'react';
 import Rating from './Rating';
 import ReviewForm from './ReviewForm';
 import './ReviewList.css';
-import { useLocale } from '../contexts/LocaleContext';
+import useTranslate from '../hooks/useTranslate';
 
 function formatDate(value) {
   // 숫자형의 날짜를 예쁘게 보여주는 함수
@@ -10,8 +10,8 @@ function formatDate(value) {
   return `${date.getFullYear()}. ${date.getMonth() + 1}. ${date.getDate()}`;
 }
 
-function ReviewListItem({ item, onDelete, onEdit }) {
-  const locale = useLocale(); // 리턴값으로 받은 데이터를 locale 변수로 사용
+function ReviewListItem({ item, onDelete, onEdit }) {  
+  const t = useTranslate(); // 사용할 함수 Hook으로 받아 선언
 
   // onDelete 함수가 부모 컴포넌트에서 전달되었다는 것은 ReviewListItem 컴포넌트가 자신의 부모 컴포넌트인 ReviewList를 통해 App.js에서 정의된 handleDelete 함수를 props로 전달받아 사용하고 있다
   // ReviewList 컴포넌트는 ReviewListItem 컴포넌트를 렌더링할 때, onDelete props를 다시 ReviewListItem 컴포넌트로 전달합니다.
@@ -33,9 +33,8 @@ function ReviewListItem({ item, onDelete, onEdit }) {
         <Rating value={item.rating} />
         <p>{formatDate(item.createdAt)}</p>
         <p>{item.content}</p>
-        <p>현재 언어: {locale}</p>
-        <button onClick={handleDeleteClick}>삭제</button>
-        <button onClick={handleEditClick}>수정</button>
+        <button onClick={handleEditClick}>{t('edit button')}</button>
+        <button onClick={handleDeleteClick}>{t('delete button')}</button>
       </div>
     </div>
   );

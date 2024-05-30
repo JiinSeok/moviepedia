@@ -4,6 +4,7 @@ import FileInput from "./FileInput";
 import RatingInput from "./RatingInput";
 import { createReview } from "../api";
 import useAsync from "../hooks/useAsync";
+import useTranslate from "../hooks/useTranslate";
 
 const INITIAL_VALUES = {
   title: "",
@@ -13,7 +14,10 @@ const INITIAL_VALUES = {
 };
 
 function ReviewForm({ initialPreview, initialValues = INITIAL_VALUES, onSubmit, onSubmitSuccess, onCancel }) {
+  const t = useTranslate();
+
   const [isSubmitting, submittingError, onSubmitAsync] = useAsync(onSubmit);
+  
   const [values, setValues] = useState(initialValues);
 
   const handleChange = (name, value) => {
@@ -65,8 +69,8 @@ function ReviewForm({ initialPreview, initialValues = INITIAL_VALUES, onSubmit, 
         value={values.content}
         onChange={handleInputChange}
       />
-      {onCancel && <button onClick={onCancel}>취소</button>}
-      <button type='submit' disabled={isSubmitting}>확인</button>
+      {onCancel && <button onClick={onCancel}>{t('cancel button')}</button>}
+      <button type='submit' disabled={isSubmitting}>{t('confirm button')}</button>
       {submittingError?.message && <div>{submittingError.message}</div>}
     </form>
   );
